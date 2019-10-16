@@ -19,6 +19,10 @@ from ..core import (ButtplugMessage, StartScanning, StopScanning, Ok,
 from ..utils import EventHandler
 from typing import Dict, List, Tuple, Union
 from asyncio import Future, get_event_loop
+from logging import getLogger
+
+
+logger = getLogger("buttplug")
 
 
 class ButtplugClient(ButtplugClientConnectorObserver):
@@ -89,7 +93,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         initmsg = RequestServerInfo("Client Test")
         msg: ServerInfo = await self._send_message_expect_reply(initmsg,
                                                                 ServerInfo)
-        print("Connected to server: " + msg.server_name)
+        logger.getChild("client").info("Connected to server: " + msg.server_name)
         dl: DeviceList = await self._send_message_expect_reply(RequestDeviceList(),
                                                                DeviceList)
         self._handle_device_list(dl)
@@ -218,7 +222,7 @@ class ButtplugClientDevice(object):
             self.name = device_info.device_name
             self._index = device_info.device_index
             self.allowed_messages: Dict[str, MessageAttributes] = {}
-            print(device_info.device_messages)
+            logger.getChild("device").info(device_info.device_messages)
             for (msg_name, attrs) in device_info.device_messages.items():
                 self.allowed_messages[msg_name] = MessageAttributes(attrs.get("FeatureCount"))
         else:
